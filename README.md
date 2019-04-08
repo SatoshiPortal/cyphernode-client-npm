@@ -1,5 +1,10 @@
 # Cyphernode Client for NPM
 
+Links
+
+ - [GitHub](https://github.com/SatoshiPortal/cyphernode-client-npm)
+ - [NPM](https://www.npmjs.com/package/cyphernode-client)
+
 Install with
 
 `npm install -s cyphernode-client`
