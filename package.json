@@ -1,0 +1,11 @@
+{
+  "name": "cyphernode-client",
+  "version": "1.0.1",
+  "description": "Cyphernode Client for NPM",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Arthur GERBELOT",
+  "license": "ISC"
+}
