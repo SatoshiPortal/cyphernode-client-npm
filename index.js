@@ -1,3 +1,6 @@
+let request = require('request')
+let HmacSHA256 = require('crypto-js/hmac-sha256')
+
 let Cyphernode = {
   baseURL: null,
   h64:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9Cg==',
@@ -10,66 +13,45 @@ let Cyphernode = {
 const generateToken = () => {
   let current = Math.round(new Date().getTime()/1000) + 10
   let p = '{"id":"' + Cyphernode.apiId + '","exp":' + current + '}'
-  let p64 = Buffer.from(p).toString('base64')
+  let p64 = new Buffer(p).toString('base64')
   let msg = Cyphernode.h64 + '.' + p64
-  let s = CryptoJS.HmacSHA256(msg, Cyphernode.apiKey).toString()
+  let s = HmacSHA256(msg, Cyphernode.apiKey).toString()
   let token = msg + '.' + s
 
   return token
 };
 
-const post = (url, postdata, cb, addedOptions) => {
-  let urlr = Cyphernode.baseURL + url;
-  let httpOptions = {
-    data: postdata,
-    npmRequestOptions: {
-      strictSSL: false,
-      agentOptions: {
-        rejectUnauthorized: false
-      }
-    },
+const post = (url, postdata, next, addedOptions) => {
+  return call({url, postdata, addedOptions, method: "POST"}, next)
+}
+const get = (url, next, addedOptions) => {
+  return call({url, addedOptions}, next)
+}
+let call = ({url, postdata, addedOptions, method}, next) => {
+  let request_opts = {
+    url: Cyphernode.baseURL + url,
+    method: method || "GET",
     headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ' + generateToken()
-    }
-  }
-  if (addedOptions) {
-    Object.assign(httpOptions.npmRequestOptions, addedOptions)
-  }
-
-  HTTP.post(urlr, httpOptions,
-    function (err, resp) {
-      cb(err, resp.data || resp.content)
-    }
-  )
-};
-
-const get = (url, cb, addedOptions) => {
-  let urlr = Cyphernode.baseURL + url;
-  let httpOptions = {
-    npmRequestOptions: {
-      strictSSL: false,
-      agentOptions: {
-        rejectUnauthorized: false
-      }
     },
-    headers: {
-      'Authorization': 'Bearer ' + generateToken()
-    }
+    strictSSL: false,
+    agentOptions: {
+      rejectUnauthorized: false
+    },
+  }
+  if (postdata) {
+    request_opts.formData = postdata
   }
   if (addedOptions) {
-    Object.assign(httpOptions.npmRequestOptions, addedOptions)
+    Object.assign(request_opts, addedOptions)
   }
-
-  HTTP.get(urlr, httpOptions,
-    function (err, resp) {
-      cb(err, resp.data || resp.content)
-    }
-  )
+  request(request_opts, (err, res, body) => {
+    next(err, body)
+  })
 };
 
 module.exports = {
-
   // Set new cyphernode' settings
   // - settings {Object}
   set(settings) {
