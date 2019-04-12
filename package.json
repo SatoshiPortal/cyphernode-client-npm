@@ -1,6 +1,6 @@
 {
   "name": "cyphernode-client",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Cyphernode Client for NPM",
   "main": "index.js",
   "scripts": {
